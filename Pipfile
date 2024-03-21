@@ -7,6 +7,7 @@ name = "pypi"
 fastapi = "0.110.0"
 
 [dev-packages]
+pylint = "*"
 
 [requires]
 python_version = "3.12"
