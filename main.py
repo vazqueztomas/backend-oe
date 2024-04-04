@@ -1,18 +1,30 @@
 from fastapi import FastAPI
 from models.user import User
+from dotenv import dotenv_values
+from pymongo import MongoClient
+from routes.book import book_router
+from routes.users import user_router
+
+
+config = dotenv_values('.env')
+
 
 app = FastAPI()
 
-fake_users = [
-    User(name='Tomas', lastname="Vazquez", city="mercedes", gender="male", age=23),
-    User(name='delfina', lastname="ensenat", city="mercedes", gender="female", age=26),
-    User(name='juan', lastname="perez", city="lujan", gender="male", age=28),
-]
+@app.on_event("startup")
+def startup_db_client():
+    app.mongodb_client = MongoClient(config["MONGODB_ATLAS_CONNECTION_STRING"])
+    app.database = app.mongodb_client[config["DB_NAME"]]
+    print("Connected to the MongoDB database!")
+
+@app.on_event("shutdown")
+def shutdown_db_client():
+    app.mongodb_client.close()
+
+app.include_router(book_router, tags=["books"], prefix="/book")
+app.include_router(user_router, tags=["users"], prefix="/users")
 
 @app.get("/")
 def read_root():
+    startup_db_client()
     return {"Hello": "World"}
-
-@app.get("/users")
-def get_users():
-    return fake_users

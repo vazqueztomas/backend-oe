@@ -13,10 +13,7 @@ def get_database():
         # Create a connection using MongoClient
         client = pymongo.MongoClient(connection_string)
         
-        return client.get_database("users")
+        return client
     except Exception as e:
         logging.error(f"Failed to connect to MongoDB Atlas: {e}")
         raise
-
-if __name__ == "__main__":
-    dbname = get_database()
